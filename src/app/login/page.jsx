@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
+import { useTheme } from "next-themes";
 
 import {
   Card,
@@ -24,6 +25,14 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // থিম ডিটেক্ট করার জন্য
+  const { resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -71,28 +80,38 @@ const LoginPage = () => {
     }
   };
 
+  // Hydration এরর এড়াতে কম্পোনেন্ট মাউন্ট হওয়ার আগে রেন্ডার অফ রাখা হয়েছে
+  if (!mounted) return null; 
+
+  const isDark = resolvedTheme === "dark";
+
   return (
-    // 'dark' ক্লাস অ্যাড করা হয়েছে যাতে HeroUI এর কম্পোনেন্টগুলো অটো ডার্ক মোডে থাকে
-    <div className="dark min-h-screen flex items-center justify-center bg-[#050505] px-4 py-10 relative overflow-hidden font-sans">
+    // মূল কন্টেইনারে ডাইনামিক লাইট ও ডার্ক মোড ক্লাস
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#030303] px-4 py-10 relative overflow-hidden font-sans transition-colors duration-300">
       
       {/* --- Ambient Background Glow --- */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#4328EB]/15 blur-[150px] rounded-full pointer-events-none"></div>
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] blur-[150px] rounded-full pointer-events-none transition-all duration-300"
+        style={{
+          backgroundColor: isDark ? "rgba(67, 40, 235, 0.15)" : "rgba(67, 40, 235, 0.08)"
+        }}
+      />
 
-      <Card className="w-full max-w-md p-8 rounded-3xl bg-[#0A0A0C] shadow-2xl border border-zinc-800/60 flex flex-col gap-6 relative z-10">
+      <Card className="w-full max-w-md p-8 rounded-3xl bg-white dark:bg-[#0A0A0C] shadow-xl dark:shadow-2xl border border-gray-200 dark:border-white/5 flex flex-col gap-6 relative z-10 transition-colors duration-300">
         
         {/* Heading */}
         <div className="text-center">
-          <h1 className="text-3xl font-black text-white tracking-tight">
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
             Welcome Back
           </h1>
-          <p className="text-sm text-zinc-400 mt-2 font-medium">
-            Sign in to continue to Programming Hero
+          <p className="text-sm text-gray-500 dark:text-zinc-400 mt-2 font-medium">
+            Sign in to continue to JobFinder
           </p>
         </div>
 
         {/* Error */}
         {serverError && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-sm text-center font-medium">
+          <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl text-sm text-center font-medium">
             {serverError}
           </div>
         )}
@@ -101,22 +120,22 @@ const LoginPage = () => {
         <Form onSubmit={onSubmit} className="flex flex-col gap-5">
           {/* Email */}
           <TextField isRequired name="email" type="email" className="w-full">
-            <Label className="mb-2 text-sm font-semibold text-zinc-300">Email</Label>
+            <Label className="mb-2 text-sm font-semibold text-gray-700 dark:text-zinc-300">Email</Label>
             <Input 
               placeholder="john@example.com" 
               className="w-full" 
               classNames={{
-                inputWrapper: "bg-[#121214] border-zinc-800 hover:border-zinc-700 data-[focus=true]:border-[#6B4BFF]",
-                input: "text-white placeholder:text-zinc-600"
+                inputWrapper: "bg-gray-50 dark:bg-[#121214] border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 data-[focus=true]:border-[#6B4BFF]",
+                input: "text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600"
               }}
             />
-            <FieldError className="text-red-400 text-xs mt-1" />
+            <FieldError className="text-red-500 dark:text-red-400 text-xs mt-1" />
           </TextField>
 
           {/* Password */}
           <TextField isRequired name="password" type="password" className="w-full">
             <div className="flex justify-between items-center mb-2">
-              <Label className="text-sm font-semibold text-zinc-300">Password</Label>
+              <Label className="text-sm font-semibold text-gray-700 dark:text-zinc-300">Password</Label>
               <Link href="/forgot-password" className="text-xs text-[#6B4BFF] hover:text-[#8B3DFF] hover:underline transition-colors">
                 Forgot password?
               </Link>
@@ -125,11 +144,11 @@ const LoginPage = () => {
               placeholder="••••••••" 
               className="w-full"
               classNames={{
-                inputWrapper: "bg-[#121214] border-zinc-800 hover:border-zinc-700 data-[focus=true]:border-[#6B4BFF]",
-                input: "text-white placeholder:text-zinc-600"
+                inputWrapper: "bg-gray-50 dark:bg-[#121214] border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 data-[focus=true]:border-[#6B4BFF]",
+                input: "text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600"
               }} 
             />
-            <FieldError className="text-red-400 text-xs mt-1" />
+            <FieldError className="text-red-500 dark:text-red-400 text-xs mt-1" />
           </TextField>
 
           {/* Button */}
@@ -144,7 +163,7 @@ const LoginPage = () => {
         </Form>
 
         {/* Redirect */}
-        <p className="text-center text-sm text-zinc-500 font-medium">
+        <p className="text-center text-sm text-gray-500 dark:text-zinc-500 font-medium">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="text-[#6B4BFF] font-bold hover:text-[#8B3DFF] hover:underline transition-colors">
             Register
@@ -153,9 +172,9 @@ const LoginPage = () => {
 
         {/* Divider */}
         <div className="flex items-center gap-4">
-          <Separator className="flex-1 bg-zinc-800" />
-          <span className="text-xs text-zinc-600 uppercase font-semibold">OR</span>
-          <Separator className="flex-1 bg-zinc-800" />
+          <Separator className="flex-1 bg-gray-200 dark:bg-zinc-800" />
+          <span className="text-xs text-gray-400 dark:text-zinc-600 uppercase font-semibold">OR</span>
+          <Separator className="flex-1 bg-gray-200 dark:bg-zinc-800" />
         </div>
 
         {/* Google */}
@@ -163,7 +182,7 @@ const LoginPage = () => {
           onClick={handleGoogleSignin}
           isLoading={googleLoading}
           isDisabled={loading}
-          className="w-full border border-zinc-800 hover:border-zinc-700 py-6 rounded-xl bg-[#121214] hover:bg-[#1A1A1E] text-white transition-all duration-300"
+          className="w-full border border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 py-6 rounded-xl bg-white hover:bg-gray-50 dark:bg-[#121214] dark:hover:bg-[#1A1A1E] text-gray-700 dark:text-white transition-all duration-300"
         >
           {!googleLoading && <FcGoogle size={22} />}
           <span className="font-medium text-[15px]">{googleLoading ? "Redirecting..." : "Continue with Google"}</span>

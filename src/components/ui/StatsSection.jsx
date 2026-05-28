@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 
 const stats = [
   {
@@ -13,6 +16,7 @@ const stats = [
     label: "Active Jobs",
     accent: "#6B4BFF",
     glow: "rgba(107,75,255,0.18)",
+    lightGlow: "rgba(107,75,255,0.1)",
   },
   {
     id: 2,
@@ -27,6 +31,7 @@ const stats = [
     label: "Companies",
     accent: "#06b6d4",
     glow: "rgba(6,182,212,0.15)",
+    lightGlow: "rgba(6,182,212,0.08)",
   },
   {
     id: 3,
@@ -41,6 +46,7 @@ const stats = [
     label: "Job Seekers",
     accent: "#f59e0b",
     glow: "rgba(245,158,11,0.15)",
+    lightGlow: "rgba(245,158,11,0.08)",
   },
   {
     id: 4,
@@ -53,24 +59,33 @@ const stats = [
     label: "Satisfaction Rate",
     accent: "#10b981",
     glow: "rgba(16,185,129,0.15)",
+    lightGlow: "rgba(16,185,129,0.08)",
   },
 ];
 
 const StatsSection = () => {
-  return (
-    <section className="relative w-full bg-[#030303] flex flex-col items-center justify-center py-28 px-6 overflow-hidden font-sans">
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => setMounted(true), []);
+  const isDark = !mounted || resolvedTheme === "dark";
+
+  return (
+    <section className="relative w-full bg-[#f8fafc] dark:bg-[#030303] flex flex-col items-center justify-center py-28 px-6 overflow-hidden font-sans transition-colors duration-300">
+      
       {/* ── Grid texture ── */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.025]"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage:
-            "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)",
+          backgroundImage: isDark
+            ? "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)"
+            : "linear-gradient(#000 1px,transparent 1px),linear-gradient(90deg,#000 1px,transparent 1px)",
           backgroundSize: "56px 56px",
+          opacity: isDark ? 0.025 : 0.04
         }}
       />
 
-      {/* ── Stars ── */}
+      {/* ── Stars (Only visible clearly in Dark mode) ── */}
       {[
         { top: "8%",  left: "18%",  size: 1.5, op: 0.6 },
         { top: "14%", right: "22%", size: 1,   op: 0.8 },
@@ -81,28 +96,32 @@ const StatsSection = () => {
       ].map((s, i) => (
         <div
           key={i}
-          className="absolute rounded-full bg-white pointer-events-none"
+          className="absolute rounded-full bg-slate-400 dark:bg-white pointer-events-none"
           style={{
             top: s.top,
             left: s.left,
             right: s.right,
             width: s.size,
             height: s.size,
-            opacity: s.op,
+            opacity: isDark ? s.op : s.op * 0.4,
             filter: "blur(0.5px)",
           }}
         />
       ))}
 
       {/* ── Deep purple glow ── */}
-      <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[800px] h-[480px] bg-[#4328EB]/30 blur-[160px] rounded-full pointer-events-none" />
+      <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[800px] h-[480px] bg-[#4328EB]/10 dark:bg-[#4328EB]/30 blur-[160px] rounded-full pointer-events-none" />
 
       {/* ── CSS Globe ── */}
-      <div className="absolute top-[38%] left-1/2 -translate-x-1/2 w-[150vw] md:w-[1100px] h-[150vw] md:h-[1100px] rounded-full pointer-events-none"
+      <div className="absolute top-[38%] left-1/2 -translate-x-1/2 w-[150vw] md:w-[1100px] h-[150vw] md:h-[1100px] rounded-full pointer-events-none transition-all duration-300"
         style={{
-          background: "radial-gradient(ellipse at 50% 0%, #181828 0%, #030303 70%)",
-          borderTop: "1px solid rgba(107,75,255,0.3)",
-          boxShadow: "0 0 100px rgba(67,40,235,0.15) inset, 0 -40px 80px rgba(67,40,235,0.08)",
+          background: isDark 
+            ? "radial-gradient(ellipse at 50% 0%, #181828 0%, #030303 70%)"
+            : "radial-gradient(ellipse at 50% 0%, #e2e8f0 0%, #f8fafc 70%)",
+          borderTop: isDark ? "1px solid rgba(107,75,255,0.3)" : "1px solid rgba(107,75,255,0.15)",
+          boxShadow: isDark 
+            ? "0 0 100px rgba(67,40,235,0.15) inset, 0 -40px 80px rgba(67,40,235,0.08)"
+            : "0 0 100px rgba(67,40,235,0.04) inset, 0 -40px 80px rgba(67,40,235,0.02)",
         }}
       />
 
@@ -110,23 +129,23 @@ const StatsSection = () => {
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col items-center">
 
         {/* Label pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.04] mb-7">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-white/[0.04] mb-7 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-[#6B4BFF]" />
-          <span className="text-[11px] font-semibold tracking-[0.18em] text-zinc-400 uppercase">By The Numbers</span>
+          <span className="text-[11px] font-semibold tracking-[0.18em] text-gray-500 dark:text-zinc-400 uppercase">By The Numbers</span>
         </div>
 
         {/* Heading */}
         <h2
-          className="text-3xl md:text-[46px] text-center leading-tight md:leading-[1.15] max-w-[740px] mb-5 font-bold tracking-tight"
+          className="text-3xl md:text-[46px] text-center leading-tight md:leading-[1.15] max-w-[740px] mb-5 font-bold tracking-tight text-gray-900 dark:text-white"
           style={{ fontFamily: "'Syne', sans-serif" }}
         >
-          <span className="text-zinc-400 font-normal">Assisting over </span>
-          <span className="text-white">15,000 job seekers</span>
+          <span className="text-gray-500 dark:text-zinc-400 font-normal">Assisting over </span>
+          <span>15,000 job seekers</span>
           <br className="hidden md:block" />
-          <span className="text-zinc-400 font-normal"> find their dream positions.</span>
-        </h2>
+          <span className="text-gray-500 dark:text-zinc-400 font-normal"> find their dream positions.</span>
+        </h2> 
 
-        <p className="text-zinc-500 text-sm md:text-base text-center max-w-md mb-16 leading-relaxed">
+        <p className="text-gray-500 dark:text-zinc-500 text-sm md:text-base text-center max-w-md mb-16 leading-relaxed">
           Real numbers. Real outcomes. Join a community of professionals who landed their next big role through HireLoop.
         </p>
 
@@ -135,33 +154,35 @@ const StatsSection = () => {
           {stats.map((item) => (
             <div
               key={item.id}
-              className="group relative rounded-2xl p-7 flex flex-col justify-between h-[210px] transition-all duration-300 cursor-default overflow-hidden"
+              className="group relative rounded-2xl p-7 flex flex-col justify-between h-[210px] transition-all duration-300 cursor-default overflow-hidden shadow-sm dark:shadow-none"
               style={{
-                background: "#0a0a0c",
-                border: "1px solid rgba(255,255,255,0.07)",
+                background: isDark ? "#0a0a0c" : "#ffffff",
+                border: isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid rgba(0,0,0,0.06)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.border = `1px solid ${item.accent}55`;
-                e.currentTarget.style.boxShadow = `0 0 32px ${item.glow}, 0 2px 20px rgba(0,0,0,0.4)`;
+                e.currentTarget.style.boxShadow = isDark 
+                  ? `0 0 32px ${item.glow}, 0 2px 20px rgba(0,0,0,0.4)`
+                  : `0 8px 32px ${item.lightGlow}, 0 2px 12px rgba(0,0,0,0.03)`;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.border = "1px solid rgba(255,255,255,0.07)";
+                e.currentTarget.style.border = isDark ? "1px solid rgba(255,255,255,0.07)" : "1px solid rgba(0,0,0,0.06)";
                 e.currentTarget.style.boxShadow = "none";
               }}
             >
               {/* Corner glow */}
               <div
                 className="absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                style={{ background: `radial-gradient(circle at top right, ${item.glow} 0%, transparent 70%)` }}
+                style={{ background: `radial-gradient(circle at top right, ${isDark ? item.glow : item.lightGlow} 0%, transparent 70%)` }}
               />
 
               {/* Icon */}
               <div
                 className="flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-300"
                 style={{
-                  background: `${item.accent}18`,
+                  background: isDark ? `${item.accent}18` : `${item.accent}10`,
                   color: item.accent,
-                  border: `1px solid ${item.accent}30`,
+                  border: isDark ? `1px solid ${item.accent}30` : `1px solid ${item.accent}20`,
                 }}
               >
                 {item.icon}
@@ -171,13 +192,13 @@ const StatsSection = () => {
               <div>
                 <div className="flex items-end gap-1 mb-1.5">
                   <h3
-                    className="text-[46px] font-extrabold leading-none text-white"
+                    className="text-[46px] font-extrabold leading-none text-gray-900 dark:text-white"
                     style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     {item.value}
                   </h3>
                 </div>
-                <p className="text-[13px] text-zinc-500 font-medium tracking-wide uppercase">
+                <p className="text-[13px] text-gray-500 dark:text-zinc-500 font-medium tracking-wide uppercase">
                   {item.label}
                 </p>
 
